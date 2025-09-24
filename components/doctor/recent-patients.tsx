@@ -7,7 +7,7 @@ import { FileText, MessageSquare, Clock, Users } from "lucide-react"
 const recentPatients = [
   {
     id: 1,
-    name: "John Doe",
+    name: "Jay Patel",
     age: 45,
     avatar: "/patient-john.jpg",
     lastVisit: "2 hours ago",
@@ -17,7 +17,7 @@ const recentPatients = [
   },
   {
     id: 2,
-    name: "Maria Garcia",
+    name: "Arjun Kumar",
     age: 32,
     avatar: "/patient-maria.jpg",
     lastVisit: "1 day ago",
@@ -27,7 +27,7 @@ const recentPatients = [
   },
   {
     id: 3,
-    name: "Robert Chen",
+    name: "Raj Patel",
     age: 58,
     avatar: "/patient-robert.jpg",
     lastVisit: "3 days ago",
@@ -37,7 +37,7 @@ const recentPatients = [
   },
   {
     id: 4,
-    name: "Emily Wilson",
+    name: "Khushi Sharma",
     age: 28,
     avatar: "/patient-emily.jpg",
     lastVisit: "1 week ago",

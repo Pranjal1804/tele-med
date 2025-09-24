@@ -37,7 +37,7 @@ export function useWebRTC({ roomId, userId, isInitiator = false }: UseWebRTCProp
 
   // Initialize socket connection
   useEffect(() => {
-    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000')
+    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001')
     setSocket(newSocket)
 
     newSocket.emit('join-room', roomId, userId)

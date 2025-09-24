@@ -13,7 +13,7 @@ export default function PatientDashboard() {
         <div className="space-y-8">
           {/* Welcome Section */}
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-balance">Welcome back, John!</h1>
+            <h1 className="text-3xl font-bold text-balance">Welcome back, Raj!</h1>
             <p className="text-muted-foreground">Here's an overview of your health and upcoming appointments.</p>
           </div>
 

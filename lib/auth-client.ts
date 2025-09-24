@@ -46,7 +46,7 @@ class AuthClient {
   private token: string | null = null
 
   constructor() {
-    this.baseURL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'
+    this.baseURL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001'
     this.token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
   }
 

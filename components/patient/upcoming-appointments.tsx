@@ -9,7 +9,7 @@ const appointments = [
   {
     id: 1,
     doctor: {
-      name: "Dr. Sarah Johnson",
+      name: "Dr. Khushi Sharma",
       specialty: "Cardiologist",
       avatar: "/doctor-sarah.jpg",
     },
@@ -21,7 +21,7 @@ const appointments = [
   {
     id: 2,
     doctor: {
-      name: "Dr. Michael Chen",
+      name: "Dr. Raj Patel",
       specialty: "General Practice",
       avatar: "/doctor-michael.jpg",
     },
@@ -33,7 +33,7 @@ const appointments = [
   {
     id: 3,
     doctor: {
-      name: "Dr. Emily Rodriguez",
+      name: "Dr. Amit Kumar",
       specialty: "Dermatologist",
       avatar: "/doctor-emily.jpg",
     },

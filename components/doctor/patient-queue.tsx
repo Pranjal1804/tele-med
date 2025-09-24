@@ -8,7 +8,7 @@ import Link from "next/link"
 const waitingPatients = [
   {
     id: 1,
-    name: "Alice Johnson",
+    name: "Amit Kumar",
     avatar: "/patient-alice.jpg",
     waitTime: "5 min",
     reason: "Urgent consultation",
@@ -16,7 +16,7 @@ const waitingPatients = [
   },
   {
     id: 2,
-    name: "Michael Brown",
+    name: "Arjun Patel",
     avatar: "/patient-michael.jpg",
     waitTime: "12 min",
     reason: "Follow-up appointment",
@@ -24,7 +24,7 @@ const waitingPatients = [
   },
   {
     id: 3,
-    name: "Sarah Davis",
+    name: "Krish Saxena",
     avatar: "/patient-sarah.jpg",
     waitTime: "8 min",
     reason: "Prescription refill",

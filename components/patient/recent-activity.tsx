@@ -6,7 +6,7 @@ const activities = [
   {
     icon: FileText,
     title: "Lab Results Available",
-    description: "Blood work results from Dr. Johnson",
+    description: "Blood work results from Dr. Jay",
     time: "2 hours ago",
     type: "results",
     action: "Download",
@@ -14,7 +14,7 @@ const activities = [
   {
     icon: MessageSquare,
     title: "New Message",
-    description: "Dr. Chen responded to your question",
+    description: "Dr. Kumar responded to your question",
     time: "4 hours ago",
     type: "message",
     action: "Read",
@@ -38,7 +38,7 @@ const activities = [
   {
     icon: Calendar,
     title: "Appointment Completed",
-    description: "Video consultation with Dr. Johnson",
+    description: "Video consultation with Dr. Jay",
     time: "3 days ago",
     type: "completed",
     action: "Summary",

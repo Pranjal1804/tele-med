@@ -13,7 +13,7 @@ export default function DoctorDashboard() {
         <div className="space-y-8">
           {/* Welcome Section */}
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-balance">Good morning, Dr. Johnson!</h1>
+            <h1 className="text-3xl font-bold text-balance">Good morning, Dr. Jay!</h1>
             <p className="text-muted-foreground">You have 5 appointments today and 3 patients waiting in the queue.</p>
           </div>
 

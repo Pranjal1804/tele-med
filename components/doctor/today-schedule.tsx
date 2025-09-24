@@ -9,7 +9,7 @@ const todayAppointments = [
   {
     id: 1,
     patient: {
-      name: "John Doe",
+      name: "Raj Patel",
       age: 45,
       avatar: "/patient-john.jpg",
       condition: "Hypertension follow-up",
@@ -23,7 +23,7 @@ const todayAppointments = [
   {
     id: 2,
     patient: {
-      name: "Maria Garcia",
+      name: "Amit Patel",
       age: 32,
       avatar: "/patient-maria.jpg",
       condition: "Annual checkup",
@@ -37,7 +37,7 @@ const todayAppointments = [
   {
     id: 3,
     patient: {
-      name: "Robert Chen",
+      name: "Arjun Kumar",
       age: 58,
       avatar: "/patient-robert.jpg",
       condition: "Chest pain consultation",
@@ -51,7 +51,7 @@ const todayAppointments = [
   {
     id: 4,
     patient: {
-      name: "Emily Wilson",
+      name: "Khushi Sharma",
       age: 28,
       avatar: "/patient-emily.jpg",
       condition: "Lab results review",
@@ -65,7 +65,7 @@ const todayAppointments = [
   {
     id: 5,
     patient: {
-      name: "David Brown",
+      name: "Dheeraj Sharma",
       age: 67,
       avatar: "/patient-david.jpg",
       condition: "Medication adjustment",

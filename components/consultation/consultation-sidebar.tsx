@@ -32,7 +32,7 @@ export function ConsultationSidebar({ isDoctor = false }: ConsultationSidebarPro
   const [prescription, setPrescription] = useState("")
 
   const patientInfo = {
-    name: "John Doe",
+    name: "Jay Pandya",
     age: 45,
     gender: "Male",
     bloodType: "O+",

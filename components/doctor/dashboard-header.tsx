@@ -93,9 +93,9 @@ export function DoctorDashboardHeader() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Dr. Sarah Johnson</p>
+                    <p className="text-sm font-medium leading-none">Dr. Sameer Verma</p>
                     <p className="text-xs leading-none text-muted-foreground">Cardiologist</p>
-                    <p className="text-xs leading-none text-muted-foreground">sarah.johnson@mediconnect.com</p>
+                    <p className="text-xs leading-none text-muted-foreground">sameer.verma@mediconnect.com</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

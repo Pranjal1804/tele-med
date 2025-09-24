@@ -27,9 +27,9 @@ const quickActions = [
   },
   {
     icon: FileText,
-    title: "View Records",
-    description: "Medical history",
-    href: "/patient/records",
+    title: "DiagBot",
+    description: "AI Diagnosis",
+    href: "/patient/chat",
     color: "bg-chart-4/10 text-chart-4",
   },
 ]
