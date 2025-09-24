@@ -5,9 +5,10 @@ import { EnhancedVideoInterface } from "@/components/consultation/enhanced-video
 import { ChatPanel } from "@/components/consultation/chat-panel"
 import { ConsultationSidebar } from "@/components/consultation/consultation-sidebar"
 import { Button } from "@/components/ui/button"
-import { MessageSquare, FileText, X } from "lucide-react"
+import { MessageSquare, FileText, X, TestTube } from "lucide-react"
 import { useSession } from "@/hooks/use-session"
 import { useSearchParams } from "next/navigation"
+import Link from "next/link"
 
 export default function ConsultationRoom() {
   const [activePanel, setActivePanel] = useState<"chat" | "sidebar" | null>("chat")
@@ -51,6 +52,23 @@ export default function ConsultationRoom() {
 
   return (
     <div className="h-screen bg-background flex flex-col">
+      {/* Test Mode Indicator */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-yellow-100 border-b border-yellow-200 p-2">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
+            <div className="flex items-center gap-2 text-sm text-yellow-800">
+              <TestTube className="w-4 h-4" />
+              <span>Development Mode - Testing Available</span>
+            </div>
+            <Link href="/test">
+              <Button variant="outline" size="sm">
+                Run Tests
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="flex-1 flex">
         {/* Video Area */}
@@ -68,6 +86,7 @@ export default function ConsultationRoom() {
               size="sm"
               onClick={() => togglePanel("chat")}
               className="w-12 h-12 rounded-full"
+              data-testid="panel-toggle"
             >
               <MessageSquare className="w-5 h-5" />
             </Button>
@@ -77,6 +96,7 @@ export default function ConsultationRoom() {
               size="sm"
               onClick={() => togglePanel("sidebar")}
               className="w-12 h-12 rounded-full"
+              data-testid="panel-toggle"
             >
               <FileText className="w-5 h-5" />
             </Button>
