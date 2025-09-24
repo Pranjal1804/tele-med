@@ -335,13 +335,13 @@ const activeRooms = new Map();
 const userSockets = new Map();
 
 io.on('connection', (socket) => {
-  console.log('🔌 User connected:', socket.id);
+  console.log('User connected:', socket.id);
 
   // Join consultation room
   socket.on('join-room', (data) => {
     const { roomId, userId, userType } = data;
     
-    console.log(`👤 User ${userId} (${userType}) joining room ${roomId}`);
+    console.log(`User ${userId} (${userType}) joining room ${roomId}`);
     
     socket.join(roomId);
     userSockets.set(userId, socket.id);
@@ -371,7 +371,7 @@ io.on('connection', (socket) => {
 
   // WebRTC Signaling
   socket.on('offer', (data) => {
-    console.log('📤 Offer received for room:', data.roomId);
+    console.log('Offer received for room:', data.roomId);
     socket.to(data.roomId).emit('offer', {
       offer: data.offer,
       senderId: data.senderId
@@ -379,7 +379,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('answer', (data) => {
-    console.log('📤 Answer received for room:', data.roomId);
+    console.log(' Answer received for room:', data.roomId);
     socket.to(data.roomId).emit('answer', {
       answer: data.answer,
       senderId: data.senderId
@@ -417,7 +417,7 @@ io.on('connection', (socket) => {
 
   // Text2Video events
   socket.on('activate-text2video', (data) => {
-    console.log('🤖 Text2Video activated for room:', data.roomId);
+    console.log('Text2Video activated for room:', data.roomId);
     socket.to(data.roomId).emit('text2video-activated', {
       userId: data.userId,
       reason: data.reason || 'low-bandwidth'
@@ -425,7 +425,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('deactivate-text2video', (data) => {
-    console.log('📹 Text2Video deactivated for room:', data.roomId);
+    console.log('Text2Video deactivated for room:', data.roomId);
     socket.to(data.roomId).emit('text2video-deactivated', {
       userId: data.userId
     });
@@ -469,14 +469,14 @@ io.on('connection', (socket) => {
 // Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌐 CORS enabled for: ${process.env.FRONTEND_URL}`);
-  console.log(`📁 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(` Server running on port ${PORT}`);
+  console.log(`CORS enabled for: ${process.env.FRONTEND_URL}`);
+  console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
 });
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('🛑 SIGTERM received, shutting down gracefully...');
+  console.log(' SIGTERM received, shutting down gracefully...');
   await mongoose.connection.close();
   server.close(() => {
     console.log('✅ Server closed');
