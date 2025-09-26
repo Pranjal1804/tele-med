@@ -3,13 +3,14 @@
 import { useEffect } from "react"
 import { DashboardHeader } from "@/components/patient/dashboard-header"
 import { QuickActions } from "@/components/patient/quick-actions"
-import { UpcomingAppointments } from "@/components/patient/upcoming-appointments"
 import { HealthSummary } from "@/components/patient/health-summary"
 import { RecentActivity } from "@/components/patient/recent-activity"
+import { UpcomingAppointments } from "@/components/patient/upcoming-appointments"
 import { useSession } from "@/hooks/use-session"
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 
 export default function PatientDashboard() {
   const { user, isLoading } = useSession()
@@ -23,11 +24,15 @@ export default function PatientDashboard() {
 
   const handleLogout = async () => {
     await authClient.signOut()
-    router.push("/login") // or your login page
+    router.push("/login")
   }
 
   if (isLoading || !user) {
-    return <div>Loading...</div> // Or a proper skeleton loader
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -36,7 +41,6 @@ export default function PatientDashboard() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          {/* Welcome Section */}
           <div className="flex justify-between items-start">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold text-balance">Welcome back, {user?.name}!</h1>
@@ -45,18 +49,14 @@ export default function PatientDashboard() {
             <Button variant="outline" onClick={handleLogout}>Logout</Button>
           </div>
 
-          {/* Quick Actions */}
           <QuickActions />
 
-          {/* Main Content Grid */}
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Left Column */}
             <div className="lg:col-span-2 space-y-8">
               <UpcomingAppointments />
               <RecentActivity />
             </div>
 
-            {/* Right Column */}
             <div className="space-y-8">
               <HealthSummary />
             </div>

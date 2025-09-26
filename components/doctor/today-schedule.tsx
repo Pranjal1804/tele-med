@@ -1,177 +1,131 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Calendar, Clock, Video, MessageSquare, FileText, Phone } from "lucide-react"
-import Link from "next/link"
+"use client"
 
-const todayAppointments = [
-  {
-    id: 1,
-    patient: {
-      name: "Raj Patel",
-      age: 45,
-      avatar: "/patient-john.jpg",
-      condition: "Hypertension follow-up",
-    },
-    time: "9:00 AM",
-    duration: "30 min",
-    type: "video",
-    status: "upcoming",
-    priority: "normal",
-  },
-  {
-    id: 2,
-    patient: {
-      name: "Amit Patel",
-      age: 32,
-      avatar: "/patient-maria.jpg",
-      condition: "Annual checkup",
-    },
-    time: "9:45 AM",
-    duration: "45 min",
-    type: "video",
-    status: "in-progress",
-    priority: "normal",
-  },
-  {
-    id: 3,
-    patient: {
-      name: "Arjun Kumar",
-      age: 58,
-      avatar: "/patient-robert.jpg",
-      condition: "Chest pain consultation",
-    },
-    time: "10:30 AM",
-    duration: "30 min",
-    type: "video",
-    status: "upcoming",
-    priority: "urgent",
-  },
-  {
-    id: 4,
-    patient: {
-      name: "Khushi Sharma",
-      age: 28,
-      avatar: "/patient-emily.jpg",
-      condition: "Lab results review",
-    },
-    time: "11:15 AM",
-    duration: "15 min",
-    type: "phone",
-    status: "upcoming",
-    priority: "normal",
-  },
-  {
-    id: 5,
-    patient: {
-      name: "Dheeraj Sharma",
-      age: 67,
-      avatar: "/patient-david.jpg",
-      condition: "Medication adjustment",
-    },
-    time: "2:00 PM",
-    duration: "30 min",
-    type: "video",
-    status: "upcoming",
-    priority: "normal",
-  },
-]
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Video, Loader2, Check } from "lucide-react"
+import Link from "next/link"
+import { useSession } from "@/hooks/use-session"
+import { useToast } from "@/components/ui/use-toast"
+
+interface Appointment {
+  _id: string;
+  roomId: string;
+  patientId: {
+    _id: string;
+    name: string;
+  };
+  startTime: string;
+  status: 'pending' | 'confirmed' | 'active';
+}
 
 export function TodaySchedule() {
+  const { token } = useSession();
+  const { toast } = useToast();
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchSchedule = async () => {
+    if (!token) return;
+    setIsLoading(true);
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
+      const response = await fetch(`${backendUrl}/api/consultations`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error('Failed to fetch schedule');
+      const data = await response.json();
+      const activeAppointments = data.consultations.filter(
+        (appt: Appointment) => appt.status === 'pending' || appt.status === 'confirmed' || appt.status === 'active'
+      );
+      setAppointments(activeAppointments);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchSchedule();
+    } else {
+      setIsLoading(false);
+    }
+  }, [token]);
+
+  const handleAccept = async (appointmentId: string) => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
+      const response = await fetch(`${backendUrl}/api/consultations/accept/${appointmentId}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error('Failed to accept appointment');
+      
+      toast({ title: "Success", description: "Appointment confirmed." });
+      // Refresh the list after accepting
+      fetchSchedule();
+    } catch (err: any) {
+      setError(err.message);
+      toast({ variant: "destructive", title: "Error", description: err.message });
+    }
+  };
+
+  const pending = appointments.filter(a => a.status === 'pending');
+  const confirmed = appointments.filter(a => a.status === 'confirmed' || a.status === 'active');
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="w-5 h-5" />
-          Today's Schedule
-        </CardTitle>
-        <CardDescription>December 22, 2024 • 5 appointments</CardDescription>
+        <CardTitle>Today's Appointments</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {todayAppointments.map((appointment) => (
-          <div
-            key={appointment.id}
-            className={`flex items-center justify-between p-4 rounded-lg border transition-colors ${
-              appointment.status === "in-progress"
-                ? "bg-secondary/10 border-secondary/20"
-                : "bg-card/50 hover:bg-accent/50"
-            }`}
-          >
-            <div className="flex items-center gap-4">
-              <Avatar className="h-12 w-12">
-                <AvatarImage src={appointment.patient.avatar || "/placeholder.svg"} alt={appointment.patient.name} />
-                <AvatarFallback>
-                  {appointment.patient.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </AvatarFallback>
-              </Avatar>
-
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{appointment.patient.name}</span>
-                  <span className="text-sm text-muted-foreground">({appointment.patient.age}y)</span>
-                  {appointment.priority === "urgent" && (
-                    <Badge variant="destructive" className="text-xs">
-                      Urgent
-                    </Badge>
-                  )}
-                </div>
-                <div className="text-sm text-muted-foreground">{appointment.patient.condition}</div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {appointment.time}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {appointment.type === "video" ? <Video className="w-3 h-3" /> : <Phone className="w-3 h-3" />}
-                    {appointment.duration}
+      <CardContent className="space-y-6">
+        {isLoading && <div className="flex justify-center items-center p-4"><Loader2 className="animate-spin" /></div>}
+        {error && <p className="text-destructive text-center">{error}</p>}
+        
+        {/* Pending Requests */}
+        <div>
+          <h3 className="font-semibold mb-2">Pending Requests</h3>
+          {!isLoading && pending.length === 0 && <p className="text-muted-foreground text-sm">No pending requests.</p>}
+          <div className="space-y-2">
+            {pending.map((appt) => (
+              <div key={appt._id} className="flex items-center justify-between p-2 rounded-lg bg-amber-500/10">
+                <div className="flex items-center gap-4">
+                  <Avatar><AvatarImage src={"/patient-consultation.jpg"} /><AvatarFallback>{appt.patientId.name.charAt(0)}</AvatarFallback></Avatar>
+                  <div>
+                    <p className="font-semibold">{appt.patientId.name}</p>
+                    <p className="text-sm text-muted-foreground">Requested at {new Date(appt.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                   </div>
                 </div>
+                <Button size="sm" onClick={() => handleAccept(appt._id)}><Check className="mr-2 h-4 w-4" /> Accept</Button>
               </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {appointment.status === "in-progress" ? (
-                <Badge className="bg-secondary text-secondary-foreground">In Progress</Badge>
-              ) : (
-                <Badge variant="outline">Scheduled</Badge>
-              )}
-
-              <div className="flex gap-2">
-                {appointment.status === "in-progress" ? (
-                  <Button size="sm" className="bg-secondary hover:bg-secondary/90" asChild>
-                    <Link href="/consultation/room">
-                      <Video className="w-4 h-4 mr-1" />
-                      Resume
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button size="sm" variant="outline" asChild>
-                    <Link href="/consultation/room">
-                      <Video className="w-4 h-4 mr-1" />
-                      Start
-                    </Link>
-                  </Button>
-                )}
-
-                <Button size="sm" variant="ghost">
-                  <FileText className="w-4 h-4" />
-                </Button>
-                <Button size="sm" variant="ghost">
-                  <MessageSquare className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
+        </div>
 
-        <Button variant="outline" className="w-full bg-transparent" asChild>
-          <Link href="/doctor/schedule">View Full Schedule</Link>
-        </Button>
+        {/* Confirmed Appointments */}
+        <div>
+          <h3 className="font-semibold mb-2">Confirmed Calls</h3>
+          {!isLoading && confirmed.length === 0 && <p className="text-muted-foreground text-sm">No confirmed calls.</p>}
+          <div className="space-y-2">
+            {confirmed.map((appt) => (
+              <div key={appt._id} className="flex items-center justify-between p-2 rounded-lg hover:bg-accent">
+                <div className="flex items-center gap-4">
+                  <Avatar><AvatarImage src={"/patient-consultation.jpg"} /><AvatarFallback>{appt.patientId.name.charAt(0)}</AvatarFallback></Avatar>
+                  <div>
+                    <p className="font-semibold">{appt.patientId.name}</p>
+                    <p className="text-sm text-muted-foreground">Confirmed at {new Date(appt.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                </div>
+                <Button asChild><Link href={`/consultation/room?roomId=${appt.roomId}`}><Video className="mr-2 h-4 w-4" /> Join Call</Link></Button>
+              </div>
+            ))}
+          </div>
+        </div>
       </CardContent>
     </Card>
-  )
+  );
 }

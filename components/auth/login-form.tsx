@@ -14,22 +14,34 @@ import Link from "next/link"
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent, userType: "patient" | "doctor") => {
     e.preventDefault()
     setIsLoading(true)
+    setError(null)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      // Simulate API call
+      const data = await new Promise<{ token: string; user: object }>((resolve) =>
+        setTimeout(() => resolve({ token: "fake-token", user: { name: "John Doe" } }), 1000)
+      )
 
-    // Redirect based on user type
-    if (userType === "patient") {
-      window.location.href = "/patient/dashboard"
-    } else {
-      window.location.href = "/doctor/dashboard"
+      localStorage.setItem("token", data.token)
+      localStorage.setItem("user", JSON.stringify(data.user))
+
+      // This is the fix: Use window.location.href to force a full page reload.
+      // This ensures the entire app state, including useSession, is updated with the new user.
+      if (userType === "patient") {
+        window.location.href = "/patient/dashboard"
+      } else {
+        window.location.href = "/doctor/dashboard"
+      }
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }
 
   return (

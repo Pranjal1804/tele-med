@@ -82,7 +82,7 @@ const consultationSchema = new mongoose.Schema({
   roomId: { type: String, required: true, unique: true },
   patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  status: { type: String, enum: ['waiting', 'active', 'completed', 'cancelled'], default: 'waiting' },
+  status: { type: String, enum: ['pending', 'confirmed', 'active', 'completed', 'cancelled'], default: 'pending' },
   startTime: Date,
   endTime: Date,
   notes: String,
@@ -103,15 +103,19 @@ const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) {
+  if (token == null) {
     return res.status(401).json({ error: 'Access token required' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
-      return res.status(403).json({ error: 'Invalid token' });
+      return res.status(403).json({ error: 'Invalid or expired token' });
     }
-    req.user = user;
+    
+    // This is the fix: The decoded payload is the user object.
+    // It contains userId and userType.
+    req.user = decoded; 
+    
     next();
   });
 };
@@ -251,8 +255,6 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// Add this route after your existing auth routes
-
 app.get('/api/auth/me', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select('-password');
@@ -276,35 +278,65 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
   }
 });
 
+// Route to get all doctors
+app.get('/api/doctors', authenticateToken, async (req, res) => {
+  try {
+    const doctors = await User.find({ userType: 'doctor' }).select('name specialty _id');
+    res.json({ doctors });
+  } catch (error) {
+    console.error('Get doctors error:', error);
+    res.status(500).json({ error: 'Server error fetching doctors' });
+  }
+});
+
 // Consultation Routes
-app.post('/api/consultations/create', authenticateToken, async (req, res) => {
+app.post('/api/consultations/request', authenticateToken, async (req, res) => {
   try {
     const { doctorId } = req.body;
     const patientId = req.user.userId;
 
-    // Generate unique room ID
+    if (req.user.userType !== 'patient') {
+      return res.status(403).json({ error: 'Only patients can request appointments.' });
+    }
+
     const roomId = `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     const consultation = new Consultation({
       roomId,
       patientId,
       doctorId,
-      status: 'waiting'
+      status: 'pending', // Starts as pending
+      startTime: new Date() // Set to now for an "instant" request
     });
 
     await consultation.save();
 
-    res.status(201).json({
-      message: 'Consultation created successfully',
-      consultation: {
-        id: consultation._id,
-        roomId: consultation.roomId,
-        status: consultation.status
-      }
-    });
+    res.status(201).json({ message: 'Appointment requested successfully', consultation });
   } catch (error) {
-    console.error('Create consultation error:', error);
-    res.status(500).json({ error: 'Failed to create consultation' });
+    console.error('Request consultation error:', error);
+    res.status(500).json({ error: 'Failed to request consultation' });
+  }
+});
+
+app.patch('/api/consultations/accept/:id', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.userType !== 'doctor') {
+      return res.status(403).json({ error: 'Only doctors can accept appointments.' });
+    }
+
+    const consultation = await Consultation.findById(req.params.id);
+
+    if (!consultation || consultation.doctorId.toString() !== req.user.userId) {
+      return res.status(404).json({ error: 'Consultation not found or you are not authorized.' });
+    }
+
+    consultation.status = 'confirmed';
+    await consultation.save();
+
+    res.json({ message: 'Appointment confirmed', consultation });
+  } catch (error) {
+    console.error('Accept consultation error:', error);
+    res.status(500).json({ error: 'Failed to accept consultation' });
   }
 });
 

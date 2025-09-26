@@ -9,7 +9,6 @@ import Link from "next/link"
 import { useSession } from "@/hooks/use-session"
 import { Badge } from "@/components/ui/badge"
 
-// Define the structure for a fetched appointment
 interface Appointment {
   _id: string;
   roomId: string;
@@ -38,17 +37,10 @@ export function UpcomingAppointments() {
       try {
         const backendUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
         const response = await fetch(`${backendUrl}/api/consultations`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
+          headers: { 'Authorization': `Bearer ${token}` },
         });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch appointments');
-        }
-
+        if (!response.ok) throw new Error('Failed to fetch appointments');
         const data = await response.json();
-        // Filter for upcoming appointments
         const upcoming = data.consultations.filter((appt: Appointment) => appt.status === 'pending' || appt.status === 'confirmed' || appt.status === 'active');
         setAppointments(upcoming);
       } catch (err: any) {
@@ -75,10 +67,7 @@ export function UpcomingAppointments() {
         {!isLoading && !error && appointments.map((appt) => (
           <div key={appt._id} className="flex items-center justify-between p-2 rounded-lg hover:bg-accent">
             <div className="flex items-center gap-4">
-              <Avatar>
-                <AvatarImage src={"/doctor-consultation.jpg"} />
-                <AvatarFallback>{appt.doctorId.name.charAt(0)}</AvatarFallback>
-              </Avatar>
+              <Avatar><AvatarImage src={"/doctor-consultation.jpg"} /><AvatarFallback>{appt.doctorId.name.charAt(0)}</AvatarFallback></Avatar>
               <div>
                 <p className="font-semibold">{appt.doctorId.name}</p>
                 <p className="text-sm text-muted-foreground">
