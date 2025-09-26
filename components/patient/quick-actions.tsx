@@ -1,7 +1,13 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, Video, MessageSquare, FileText, Plus } from "lucide-react"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Calendar, Video, MessageSquare, FileText, Plus } from "lucide-react";
+import Link from "next/link";
 
 const quickActions = [
   {
@@ -20,9 +26,9 @@ const quickActions = [
   },
   {
     icon: MessageSquare,
-    title: "Chat with Doctor",
-    description: "Send a message",
-    href: "/patient/messages",
+    title: "PharmaFind",
+    description: "Locate nearby meds quickly",
+    href: "/patient/findmeds",
     color: "bg-chart-3/10 text-chart-3",
   },
   {
@@ -32,7 +38,7 @@ const quickActions = [
     href: "/patient/chat",
     color: "bg-chart-4/10 text-chart-4",
   },
-]
+];
 
 export function QuickActions() {
   return (
@@ -54,12 +60,16 @@ export function QuickActions() {
               asChild
             >
               <Link href={action.href}>
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${action.color}`}>
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center ${action.color}`}
+                >
                   <action.icon className="w-6 h-6" />
                 </div>
                 <div className="text-center">
                   <div className="font-medium text-sm">{action.title}</div>
-                  <div className="text-xs text-muted-foreground">{action.description}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {action.description}
+                  </div>
                 </div>
               </Link>
             </Button>
@@ -67,5 +77,5 @@ export function QuickActions() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

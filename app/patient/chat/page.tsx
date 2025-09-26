@@ -8,44 +8,31 @@ export default function ChatPage() {
   const { toast } = useToast();
   const [sessionId, setSessionId] = useState<string | null>(null);
 
-  const handleMessage = async (message: string, files?: File[]) => {
+  const handleMessage = async (
+    message: string,
+    files?: File[],
+    audio?: File
+  ) => {
     try {
       const formData = new FormData();
 
-      // Add session ID if exists
-      if (sessionId) {
-        formData.append("session_id", sessionId);
-      }
+      if (sessionId) formData.append("session_id", sessionId);
+      if (message) formData.append("texts", message);
+      if (audio) formData.append("audios", audio);
+      if (files?.length) files.forEach((f) => formData.append("files", f));
 
-      // Add message
-      formData.append("texts", message);
-
-      // Add files if any
-      if (files?.length) {
-        files.forEach((file) => formData.append("files", file));
-      }
-
-      const response = await fetch("http://localhost:8000/chat", {
+      const response = await fetch("https://sih-chat-bot.onrender.com/chat", {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) throw new Error("Failed to send message");
-
       const data = await response.json();
-
-      // Store session ID from first response
-      if (!sessionId && data.session_id) {
-        setSessionId(data.session_id);
-      }
+      if (!sessionId && data.session_id) setSessionId(data.session_id);
 
       return data.response;
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
+      console.error(error);
       throw error;
     }
   };

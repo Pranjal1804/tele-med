@@ -83,7 +83,7 @@ export default function CSVUploadPage() {
 
     setIsUploading(true);
     try {
-      const response = await fetch("http://localhost:3005/upload", {
+      const response = await fetch("https://pharma-find.onrender.com/upload", {
         method: "POST",
         body: formData,
       });
