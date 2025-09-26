@@ -20,31 +20,32 @@ export const useWebRTC = ({ roomId, userId, isDoctor, isInitiator, socket }: Web
   const [isVideoOff, setIsVideoOff] = useState(false);
 
   const pcRef = useRef<RTCPeerConnection | null>(null);
+  const localStreamRef = useRef<MediaStream | null>(null);
   const router = useRouter();
 
   const endCall = useCallback(() => {
     if (pcRef.current) pcRef.current.close();
-    if (localStream) localStream.getTracks().forEach(track => track.stop());
+    if (localStreamRef.current) localStreamRef.current.getTracks().forEach(track => track.stop());
     router.push(isDoctor ? '/doctor/dashboard' : '/patient/dashboard');
-  }, [isDoctor, router, localStream]);
+  }, [isDoctor, router]);
 
   const toggleMute = useCallback(() => {
-    if (localStream) {
-      localStream.getAudioTracks().forEach(track => {
+    if (localStreamRef.current) {
+      localStreamRef.current.getAudioTracks().forEach(track => {
         track.enabled = !track.enabled;
         setIsMuted(prev => !prev);
       });
     }
-  }, [localStream]);
+  }, []);
 
   const toggleVideo = useCallback(() => {
-    if (localStream) {
-      localStream.getVideoTracks().forEach(track => {
+    if (localStreamRef.current) {
+      localStreamRef.current.getVideoTracks().forEach(track => {
         track.enabled = !track.enabled;
         setIsVideoOff(prev => !prev);
       });
     }
-  }, [localStream]);
+  }, []);
 
   useEffect(() => {
     if (!socket) return;
@@ -53,6 +54,7 @@ export const useWebRTC = ({ roomId, userId, isDoctor, isInitiator, socket }: Web
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         setLocalStream(stream);
+        localStreamRef.current = stream;
 
         const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
         pcRef.current = pc;
@@ -94,13 +96,28 @@ export const useWebRTC = ({ roomId, userId, isDoctor, isInitiator, socket }: Web
     };
 
     const handleAnswer = async (data: { senderId: string; answer: RTCSessionDescriptionInit }) => {
-      if (data.senderId === userId || !pcRef.current || pcRef.current.remoteDescription) return;
+      // *** THIS IS THE CORRECTED LOGIC ***
+      // The answer should ONLY be processed by the initiator.
+      // The previous code was wrong and blocked this from ever happening.
+      if (data.senderId === userId || !isInitiator || !pcRef.current) {
+        return;
+      }
+      
+      // Only set the remote description if it hasn't been set yet.
+      if (pcRef.current.remoteDescription) {
+        return;
+      }
+
       await pcRef.current.setRemoteDescription(new RTCSessionDescription(data.answer));
     };
 
     const handleIceCandidate = async (data: { senderId: string; candidate: RTCIceCandidateInit }) => {
       if (data.senderId === userId || !pcRef.current) return;
-      await pcRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
+      try {
+        await pcRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
+      } catch (e) {
+        console.error('Error adding received ice candidate', e);
+      }
     };
 
     socket.on('offer', handleOffer);
@@ -112,7 +129,7 @@ export const useWebRTC = ({ roomId, userId, isDoctor, isInitiator, socket }: Web
       socket.off('answer', handleAnswer);
       socket.off('ice-candidate', handleIceCandidate);
       if (pcRef.current) pcRef.current.close();
-      if (localStream) localStream.getTracks().forEach(track => track.stop());
+      if (localStreamRef.current) localStreamRef.current.getTracks().forEach(track => track.stop());
     };
   }, [socket, roomId, userId, isInitiator]);
 

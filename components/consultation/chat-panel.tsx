@@ -53,6 +53,7 @@ export function ChatPanel({ socket, userId, roomId }: ChatPanelProps) {
         text: newMessage,
         senderId: userId,
         roomId: roomId,
+        timestamp: Date.now()
       };
       socket.emit('chat-message', messageData);
       setNewMessage("");
